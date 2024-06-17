@@ -1,0 +1,41 @@
+#ifndef __SETTINGS_H__
+#define __SETTINGS_H__
+
+#define DELAY_UPDATE_SCREEN 200000
+
+#define MAX_X 20
+#define MAX_Y 20
+
+#define MIN_DELTA_NEW_RAND_APPLE_X 3
+#define MIN_DELTA_NEW_RAND_APPLE_Y 3
+#define MAX_APPLE_WEIGHT 3
+
+#define DRONES_NUM 4
+#define DRONES_INIT_X 4
+#define DRONES_INIT_Y 14
+#define DRONES_MIN_SIZE 1
+
+#define CHAR_HEAD_D1 '@'
+#define CHAR_HEAD_D2 '%'
+#define CHAR_HEAD_D3 '$'
+#define CHAR_HEAD_D4 '#'
+#define CHAR_TAIL_D1 '*'
+#define CHAR_TAIL_D2 '+'
+#define CHAR_TAIL_D3 '\"'
+#define CHAR_TAIL_D4 ':'
+
+const static char DRONE_HEADS_CHAR[DRONES_NUM] = {CHAR_HEAD_D1, CHAR_HEAD_D2, CHAR_HEAD_D3, CHAR_HEAD_D4};
+const static char DRONE_TAILS_CHAR[DRONES_NUM] = {CHAR_TAIL_D1, CHAR_TAIL_D2, CHAR_TAIL_D3, CHAR_TAIL_D4};
+
+#define CHAR_PUMKIN_NOT_RIPE 'o'
+#define CHAR_PUMKIN_RIPE 'O'
+#define CHAR_PUMKIN_DEAD 'X'
+
+#define PUMPKINS_INIT_X 5
+#define PUMPKINS_INIT_Y 2
+#define PUMPKINS_STEP 3
+#define PUMPKINS_WIDTH 4
+#define PUMPKINS_HEIGHT 3
+#define PUMPKINS_SIZE (PUMPKINS_WIDTH * PUMPKINS_HEIGHT)
+
+#endif /* __SETTINGS_H__ */
