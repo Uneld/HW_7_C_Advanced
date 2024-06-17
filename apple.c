@@ -1,5 +1,4 @@
 #include "apple.h"
-#include "time.h"
 
 apple_t initApple(int x, int y)
 {

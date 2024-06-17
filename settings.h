@@ -2,6 +2,7 @@
 #define __SETTINGS_H__
 
 #define DELAY_UPDATE_SCREEN 200000
+#define DELAY_WORK_RISE_PUMPKIN 1000000
 
 #define MAX_X 20
 #define MAX_Y 20
@@ -13,7 +14,8 @@
 #define DRONES_NUM 4
 #define DRONES_INIT_X 4
 #define DRONES_INIT_Y 14
-#define DRONES_MIN_SIZE 1
+#define DRONES_MIN_SIZE 2
+#define DRONES_MAX_SIZE 5
 
 #define CHAR_HEAD_D1 '@'
 #define CHAR_HEAD_D2 '%'

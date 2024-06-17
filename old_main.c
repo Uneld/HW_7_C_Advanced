@@ -19,7 +19,7 @@ int
 
 long int delayUpdateScreen = DELAY_UPDATE_SCREEN;
 float speed = 0;
-LARGE_INTEGER counter, oldCounter, freq;
+LARGE_INTEGER counter, oldCounterUpdateConsole, freq;
 int gameMode = 0;
 int flagWorkGame = 0;
 
@@ -36,7 +36,7 @@ int main()
     apple_t apple;
 
     QueryPerformanceFrequency(&freq);
-    QueryPerformanceCounter(&oldCounter);
+    QueryPerformanceCounter(&oldCounterUpdateConsole);
 
     while (1)
     {
@@ -87,10 +87,10 @@ int main()
         {
             QueryPerformanceCounter(&counter);
 
-            long delta = (counter.QuadPart - oldCounter.QuadPart) * 1000000 / freq.QuadPart;
+            long delta = (counter.QuadPart - oldCounterUpdateConsole.QuadPart) * 1000000 / freq.QuadPart;
             if (delta >= delayUpdateScreen)
             {
-                oldCounter = counter;
+                oldCounterUpdateConsole = counter;
 
                 buttonGameControl = snakeControlHandler(&snake, &snake2);
 
