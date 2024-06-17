@@ -9,7 +9,15 @@ void clearGameField(char matrix[][MAX_Y])
     {
         for (int j = 0; j < MAX_Y; ++j)
         {
-            if (matrix[i][j] != ' ')
+            if (i == 0 && j > MAX_Y - HEIGHT_CONTAINER)
+            {
+                matrix[i][j] = '|';
+            }
+            else if (i < WITDH_CONTAINER && j == MAX_Y - 1)
+            {
+                matrix[i][j] = '_';
+            }
+            else if (matrix[i][j] != ' ')
             {
                 matrix[i][j] = ' ';
             }

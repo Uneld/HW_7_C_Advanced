@@ -71,6 +71,7 @@ void initDrones(drone_t *drones, const char *headChars, const char *tailChars, i
 		drones[i].snake = initSnake(initX, initY + i, DRONES_MIN_SIZE, butCtrl, &headChars[i], &tailChars[i], 0);
 		drones[i].isAlive = 1;
 		drones[i].isManual = 0;
+		drones[i].isByzy = 0;
 	}
 }
 
@@ -90,7 +91,7 @@ void moveDrones(drone_t *drones, int size)
 	}
 }
 
-void collectionHandler(drone_t *drones, int sizeDrones, pumpkin_t *pumpkins, int sizePumpkins)
+int collectionHandler(drone_t *drones, int sizeDrones, pumpkin_t *pumpkins, int sizePumpkins)
 {
 	int isEaten = 0;
 	int unlockEat;
@@ -98,15 +99,31 @@ void collectionHandler(drone_t *drones, int sizeDrones, pumpkin_t *pumpkins, int
 	{
 		for (int j = 0; j < sizePumpkins; j++)
 		{
-			unlockEat = drones[i].snake.tsize < DRONES_MAX_SIZE && pumpkins[j].isRipe;
+			unlockEat = drones[i].snake.tsize < DRONES_MAX_SIZE && pumpkins[j].isRipe == 1 && pumpkins[j].isEaten == 0;
 			isEaten = eatHandler(&drones[i].snake, &pumpkins[j].apple, unlockEat);
 			if (isEaten)
 			{
-				pumpkins[j].isOccupied = 0;
+				if (drones[i].snake.tsize < DRONES_MAX_SIZE)
+				{
+					drones[i].isByzy = 0;
+
+					if (drones[i].isManual == 0)
+					{
+						drones[i].snake.isEnabled = 0;
+					}
+				}
+
+				if (unlockEat == 0 && pumpkins[j].isEaten == 0)
+				{
+					pumpkins[j].isEaten = 1;
+					return 1;
+				}
 				pumpkins[j].isEaten = 1;
 			}
 		}
 	}
+
+	return 0;
 }
 
 void ripePumkingHandler(pumpkin_t *pumpkins, int sizePumpkins)
@@ -130,10 +147,51 @@ void ripePumkingHandler(pumpkin_t *pumpkins, int sizePumpkins)
 	pumpkins[numPumkin].isRipe = 1;
 }
 
+int cointeinerHandler(drone_t *drones, int sizeDrones)
+{
+	int countGrub = 0;
+	for (int i = 0; i < sizeDrones; i++)
+	{
+		if (drones[i].snake.x < WITDH_CONTAINER &&
+			drones[i].snake.y > MAX_Y - HEIGHT_CONTAINER)
+		{
+			if (drones[i].snake.tsize > DRONES_MIN_SIZE)
+			{
+				drones[i].snake.tsize--;
+				countGrub++;
+			}
+		}
+	}
+
+	return countGrub;
+}
+
+void scaningRipePumkins(drone_t *drones, int sizeDrones, pumpkin_t *pumpkins, int sizePumpkins)
+{
+	for (int i = 0; i < sizePumpkins; i++)
+	{
+		if (pumpkins[i].isRipe && pumpkins[i].isOccupied == 0 && pumpkins[i].isEaten == 0)
+		{
+			for (int j = 0; j < sizeDrones; j++)
+			{
+				if (drones[j].isByzy == 0 && drones[0].isAlive == 1 && drones[j].snake.tsize < DRONES_MAX_SIZE)
+				{
+					drones[j].isByzy = 1;
+					drones[j].snake.isEnabled = 1;
+					drones[j].target = &pumpkins[i];
+					pumpkins[j].isOccupied = 1;
+				}
+			}
+		}
+	}
+}
+
 long deltaUpdateConsole;
 long deltaUpdatePumkins;
 
 int tstCOunt;
+int countGrubPumkins = 0;
+int countDestroyPumkins = 0;
 int main()
 {
 
@@ -164,6 +222,8 @@ int main()
 		{
 			oldCounterUpdatePumkins = counter;
 			ripePumkingHandler(pumpkins, PUMPKINS_SIZE);
+			countGrubPumkins += cointeinerHandler(drones, DRONES_NUM);
+			scaningRipePumkins(drones, DRONES_NUM, pumpkins, PUMPKINS_SIZE);
 			tstCOunt++;
 		}
 
@@ -172,49 +232,6 @@ int main()
 		{
 			oldCounterUpdateConsole = counter;
 
-			// buttonGameControl = snakeControlHandler(&snake);
-
-			// switch (buttonGameControl)
-			// {
-			// case STOP_KEY_VAL:
-			// 	setConsoleColor(CC_GREEN, CC_BLACK);
-			// 	system("cls");
-			// 	printf("Exit to menu");
-			// 	sleep(1);
-			// 	gameMode = 0;
-			// 	flagWorkGame = 0;
-			// 	setConsoleColor(CC_BLACK, CC_BLACK);
-			// 	break;
-
-			// case PAUSE_KEY_VAL:
-			// 	pauseFlag = !pauseFlag;
-			// 	break;
-			// }
-
-			// if (pauseFlag == 1)
-			// {
-			// 	setConsoleColor(CC_YELLOW, CC_BLACK);
-			// 	system("cls");
-			// 	printf("Game paused");
-			// 	usleep(DELAY_UPDATE_SCREEN);
-			// 	setConsoleColor(CC_BLACK, CC_BLACK);
-			// 	continue;
-			// }
-
-			// collision1 = snakeCollision(&snake);
-			// if (gameMode == 2)
-			// {
-			// 	collision2 = snakeCollision(&snake2);
-			// }
-			// collision = collision1 + collision2;
-
-			// moveSnake(&snake);
-			// if (gameMode == 2)
-			// {
-			// 	moveSnake(&snake2);
-			// }
-
-			// eatHandler(&snake, &apple);
 			int key = getControlKey();
 			if (key > 0)
 			{
@@ -246,8 +263,11 @@ int main()
 				manualControlDrone = &drones[3];
 				break;
 			case KEY_5_VAL:
-				manualControlDrone->snake.isEnabled = 0;
-				manualControlDrone->isManual = 0;
+				if (manualControlDrone != NULL)
+				{
+					manualControlDrone->snake.isEnabled = 0;
+					manualControlDrone->isManual = 0;
+				}
 				manualControlDrone = NULL;
 				break;
 			}
@@ -257,12 +277,14 @@ int main()
 				snakeControlHandler(&manualControlDrone->snake);
 			}
 			moveDrones(drones, DRONES_NUM);
-			collectionHandler(drones, DRONES_NUM, pumpkins, PUMPKINS_SIZE);
+			countDestroyPumkins += collectionHandler(drones, DRONES_NUM, pumpkins, PUMPKINS_SIZE);
 
 			system("cls");
 			clearGameField(matrix);
-			// autoChangeDirection(&snake2, &apple);
-			// printSnake(&snake, matrix);
+			if (drones[0].target != NULL)
+			{
+				autoChangeDirection(&drones[0].snake, &drones[0].target->apple);
+			}
 
 			printPumpkins(pumpkins, PUMPKINS_SIZE, matrix);
 			printDrones(drones, DRONES_NUM, matrix);
@@ -285,6 +307,15 @@ int main()
 			}
 			// printf("\n %d \n", getControlKey());
 			printf("Count: %d\n", tstCOunt);
+			printf("countGrubPumkins: %d\n", countGrubPumkins);
+			printf("countDestroyPumkins: %d\n", countDestroyPumkins);
+
+			if (drones[0].target != NULL)
+			{
+				printf("pumpkin: x:%d, y:%d\n", drones[0].target->apple.x, drones[0].target->apple.y);
+			}
+			printf("pumpkin: x:%d, y:%d\n", pumpkins[0].isEaten, pumpkins[0].isRipe);
+
 			setConsoleColor(CC_WHITE, CC_BLACK);
 		}
 		usleep(1);
