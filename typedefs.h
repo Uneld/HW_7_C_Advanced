@@ -59,6 +59,7 @@ typedef struct
     int isAlive;
     int isManual;
     int isByzy;
+    int inUnload;
     pumpkin_t *target;
 } drone_t;
 

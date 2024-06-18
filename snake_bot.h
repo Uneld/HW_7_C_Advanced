@@ -3,6 +3,6 @@
 
 #include "snake.h"
 
-void autoChangeDirection(snake_t *snake, apple_t *apple);
+void autoChangeDirection(snake_t *snake, apple_t *apple, pumpkin_t *pumpkins, int sizePumkins);
 
 #endif /* __SNAKEBOT_H__ */

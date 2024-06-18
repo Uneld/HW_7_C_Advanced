@@ -20,7 +20,7 @@ enum Direction opposite_direction(enum Direction dir)
 
 int newDir;
 
-void autoChangeDirection(snake_t *snake, apple_t *apple)
+void autoChangeDirection(snake_t *snake, apple_t *apple, pumpkin_t *pumpkins, int sizePumkins)
 {
     int lockDir[4] = {0};
     for (int i = 0; i < 4; i++)
@@ -85,11 +85,39 @@ void autoChangeDirection(snake_t *snake, apple_t *apple)
         {
             lockDir[DOWN] = 1;
         }
+
+        for (int i = 0; i < sizePumkins; i++)
+        {
+            if (pumpkins[i].isEaten == 0)
+            {
+                if (apple != &pumpkins[i].apple)
+                {
+                    if (checkX_L == pumpkins[i].apple.x && snake->y == pumpkins[i].apple.y)
+                    {
+                        lockDir[LEFT] = 1;
+                    }
+
+                    if (checkX_R == pumpkins[i].apple.x && snake->y == pumpkins[i].apple.y)
+                    {
+                        lockDir[RIGHT] = 1;
+                    }
+                    if (checkY_U == pumpkins[i].apple.y && snake->x == pumpkins[i].apple.x)
+                    {
+                        lockDir[UP] = 1;
+                    }
+                    if (checkY_D == pumpkins[i].apple.y && snake->x == pumpkins[i].apple.x)
+                    {
+                        lockDir[DOWN] = 1;
+                    }
+                }
+            }
+        }
     }
 
+    // newDir = snake->dir;
     if (lockDir[snake->dir] == 1)
     {
-        for (int i = 0; i < 4; i++)
+        for (int i = 0; i < 4; ++i)
         {
             if (lockDir[i] != 1)
             {
