@@ -1,6 +1,13 @@
 #include "snake_bot.h"
 #include "math.h"
+#include "time.h"
 
+/**
+ * Returns the opposite direction of the given direction.
+ *
+ * @param dir the direction to find the opposite of
+ * @return the opposite direction
+ */
 enum Direction opposite_direction(enum Direction dir)
 {
     switch (dir)
@@ -22,20 +29,26 @@ int newDir;
 
 void autoChangeDirection(snake_t *snake, apple_t *apple, pumpkin_t *pumpkins, int sizePumkins)
 {
+    // массив блокированных направлений
     int lockDir[4] = {0};
     for (int i = 0; i < 4; i++)
     {
         lockDir[i] = 0;
     }
+    // считаем дельты до цели
     int dX = snake->x - apple->x;
     int dY = snake->y - apple->y;
     int absdX = abs(dX);
     int absdY = abs(dY);
+    // сохраняем текущее направление змейки
     int oldSnakeDir = snake->dir;
+    // сохраняем противоположное направление змейки
     int oppoDir = opposite_direction(oldSnakeDir);
-    // printf("sx = %d, sy = %d", snake->x, snake->y);
-    // printf("dx = %d, dy = %d", dX, dY);
 
+    // блокируем противоположное направление
+    lockDir[oppoDir] = 1;
+
+    // выбираем новое направление для достижения цели
     if (absdY < absdX)
     {
         if (dX > 0)
@@ -59,13 +72,13 @@ void autoChangeDirection(snake_t *snake, apple_t *apple, pumpkin_t *pumpkins, in
         }
     }
 
-    lockDir[oppoDir] = 1;
-
+    // выбираем точки следующего шага
     int checkX_L = (snake->x - 1) % MAX_X;
     int checkX_R = (snake->x + 1) % MAX_X;
     int checkY_U = (snake->y - 1) % MAX_Y;
     int checkY_D = (snake->y + 1) % MAX_Y;
 
+    // проверка на то что змейка не будет себя пересекать
     for (int i = 0; i < snake->tsize; i++)
     {
         if (checkX_L == snake->tail[i].x && snake->y == snake->tail[i].y)
@@ -85,47 +98,45 @@ void autoChangeDirection(snake_t *snake, apple_t *apple, pumpkin_t *pumpkins, in
         {
             lockDir[DOWN] = 1;
         }
+    }
 
-        for (int i = 0; i < sizePumkins; i++)
+    // проверка на то что змейка не будет наезжать на тыквы которые не являются ее целью или уже не съедены или разрушены
+    for (int i = 0; i < sizePumkins; i++)
+    {
+        if (pumpkins[i].isEaten == 0)
         {
-            if (pumpkins[i].isEaten == 0)
+            if (apple != &pumpkins[i].apple)
             {
-                if (apple != &pumpkins[i].apple)
+                if (checkX_L == pumpkins[i].apple.x && snake->y == pumpkins[i].apple.y)
                 {
-                    if (checkX_L == pumpkins[i].apple.x && snake->y == pumpkins[i].apple.y)
-                    {
-                        lockDir[LEFT] = 1;
-                    }
+                    lockDir[LEFT] = 1;
+                }
 
-                    if (checkX_R == pumpkins[i].apple.x && snake->y == pumpkins[i].apple.y)
-                    {
-                        lockDir[RIGHT] = 1;
-                    }
-                    if (checkY_U == pumpkins[i].apple.y && snake->x == pumpkins[i].apple.x)
-                    {
-                        lockDir[UP] = 1;
-                    }
-                    if (checkY_D == pumpkins[i].apple.y && snake->x == pumpkins[i].apple.x)
-                    {
-                        lockDir[DOWN] = 1;
-                    }
+                if (checkX_R == pumpkins[i].apple.x && snake->y == pumpkins[i].apple.y)
+                {
+                    lockDir[RIGHT] = 1;
+                }
+                if (checkY_U == pumpkins[i].apple.y && snake->x == pumpkins[i].apple.x)
+                {
+                    lockDir[UP] = 1;
+                }
+                if (checkY_D == pumpkins[i].apple.y && snake->x == pumpkins[i].apple.x)
+                {
+                    lockDir[DOWN] = 1;
                 }
             }
         }
     }
 
-    // newDir = snake->dir;
+    // если текущее выбранное направление блокировано выбираем новое которое свободно
     if (lockDir[snake->dir] == 1)
     {
-        for (int i = 0; i < 4; ++i)
-        {
-            if (lockDir[i] != 1)
-            {
-                snake->dir = i;
-            }
-        }
-    }
 
-    // printf("dir = %d, opp = %d, newDir = %d\n", oldSnakeDir, oppoDir, newDir);
-    // printf("l0 %d, l1 %d, l2 %d, l3 %d", lockDir[0], lockDir[1], lockDir[2], lockDir[3]);
+        srand(time(NULL));
+
+        do
+        {
+            snake->dir = rand() % 4;
+        } while (lockDir[snake->dir] == 1);
+    }
 }

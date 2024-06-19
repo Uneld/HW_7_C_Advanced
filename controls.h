@@ -14,7 +14,7 @@
 
 extern control_buttons button_controls[SIZE_BUF_KEY];
 
-void snakeControlHandler(snake_t *snake);
+void snakeControlHandler(snake_t *snake, int key);
 int getControlKey();
 
 #endif /* __CONTROLS_H__ */

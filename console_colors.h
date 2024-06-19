@@ -3,6 +3,9 @@
 
 #include "windows.h"
 
+/**
+ * Enum representing the possible console colors.
+ */
 typedef enum
 {
     CC_BLACK = 0,
@@ -23,6 +26,12 @@ typedef enum
     CC_WHITE = 15,
 } CONSOLECOLOR;
 
+/**
+ * Sets the console color for text and background.
+ *
+ * @param text the text color
+ * @param background the background color
+ */
 void setConsoleColor(CONSOLECOLOR text, CONSOLECOLOR background);
 
 #endif /* __CONSOLE_COLORS_H__ */

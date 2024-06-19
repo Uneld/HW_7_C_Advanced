@@ -37,48 +37,54 @@ control_buttons button_controls[SIZE_BUF_KEY] =
         {KEY_RUS_s, KEY_RUS_w, KEY_RUS_a, KEY_RUS_d},
         {KEY_RUS_S, KEY_RUS_W, KEY_RUS_A, KEY_RUS_D}};
 
-void snakeControlHandler(snake_t *snake)
+/**
+ * Handles the snake control based on the keyboard input.
+ *
+ * @param snake the snake object
+ * @param key the keyboard input
+ */
+void snakeControlHandler(snake_t *snake, int key)
 {
-    if (kbhit())
+    switch (key)
     {
-        int key = getch();
-        // printf("\n %d \n", key);
-        switch (key)
+    case COMMON_ARR:
+        key = getch();
+        if (snake->lockControl == 0)
         {
-        case COMMON_ARR:
-            key = getch();
+            if (key == snake->butCtrl[BUF_ARR_KEY].down)
+                setDir(snake, DOWN);
+            else if (key == snake->butCtrl[BUF_ARR_KEY].up)
+                setDir(snake, UP);
+            else if (key == snake->butCtrl[BUF_ARR_KEY].left)
+                setDir(snake, LEFT);
+            else if (key == snake->butCtrl[BUF_ARR_KEY].right)
+                setDir(snake, RIGHT);
+        }
+        break;
+    default:
+        for (size_t i = 0; i < SIZE_BUF_KEY; i++)
+        {
             if (snake->lockControl == 0)
             {
-                if (key == snake->butCtrl[BUF_ARR_KEY].down)
+                if (key == snake->butCtrl[i].down)
                     setDir(snake, DOWN);
-                else if (key == snake->butCtrl[BUF_ARR_KEY].up)
+                else if (key == snake->butCtrl[i].up)
                     setDir(snake, UP);
-                else if (key == snake->butCtrl[BUF_ARR_KEY].left)
+                else if (key == snake->butCtrl[i].left)
                     setDir(snake, LEFT);
-                else if (key == snake->butCtrl[BUF_ARR_KEY].right)
+                else if (key == snake->butCtrl[i].right)
                     setDir(snake, RIGHT);
             }
-            break;
-        default:
-            for (size_t i = 0; i < SIZE_BUF_KEY; i++)
-            {
-                if (snake->lockControl == 0)
-                {
-                    if (key == snake->butCtrl[i].down)
-                        setDir(snake, DOWN);
-                    else if (key == snake->butCtrl[i].up)
-                        setDir(snake, UP);
-                    else if (key == snake->butCtrl[i].left)
-                        setDir(snake, LEFT);
-                    else if (key == snake->butCtrl[i].right)
-                        setDir(snake, RIGHT);
-                }
-            }
-            break;
         }
+        break;
     }
 }
 
+/**
+ * Gets the control key from the keyboard input.
+ *
+ * @return the control key code
+ */
 int getControlKey()
 {
     if (kbhit())
@@ -98,7 +104,7 @@ int getControlKey()
             return KEY_5_VAL;
 
         default:
-            return 0;
+            return key;
         }
     }
 
